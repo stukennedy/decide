@@ -1,0 +1,12 @@
+{"expect": "haiku", "description": "List TODO comments", "prompt": "Search the codebase for TODO and FIXME comments and list them with file and line."}
+{"expect": "haiku", "description": "Check Node version", "prompt": "What Node version does this project require? Check package.json engines and .nvmrc."}
+{"expect": "haiku", "description": "Find unused exports", "prompt": "Use the ts-prune output in reports/ to list which exported functions are unused. Just list them."}
+{"expect": "haiku", "description": "Update copyright year", "prompt": "Change the copyright year in LICENSE and the footer component from 2025 to 2026."}
+{"expect": "sonnet", "description": "Add retry to HTTP client", "prompt": "Add exponential backoff retries (max 3) to the fetch wrapper in src/lib/http.ts, with tests for the retry behaviour."}
+{"expect": "sonnet", "description": "Migrate component to hooks", "prompt": "Convert the class component Dashboard.jsx to a function component with hooks. Keep the same props and behaviour."}
+{"expect": "sonnet", "description": "Fix type errors", "prompt": "npm run typecheck reports 6 errors in src/billing after the Stripe SDK upgrade. Fix them."}
+{"expect": "sonnet", "description": "Add dark mode toggle", "prompt": "Add a dark mode toggle to the settings page that persists to localStorage and applies a data-theme attribute."}
+{"expect": "opus", "description": "Investigate data corruption", "prompt": "Some customer records end up with another customer's address. Trace the write paths through the API, the sync job and the cache to find how this can happen."}
+{"expect": "opus", "description": "Evaluate event sourcing", "prompt": "Should we move the orders domain to event sourcing? Analyse our current architecture, the trade-offs, the risks and a phased plan, and make a recommendation."}
+{"expect": "sonnet", "description": "Write API docs", "prompt": "Write user-facing API documentation for the /v2/invoices endpoints with request and response examples."}
+{"expect": "sonnet", "description": "Write onboarding guide", "prompt": "Write an onboarding guide for new engineers joining the team: setup, where things live, how we review and deploy."}

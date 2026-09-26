@@ -1,0 +1,24 @@
+{"expect": "haiku", "description": "Find config files", "prompt": "Find every file in the repo that reads the DATABASE_URL environment variable and list their paths."}
+{"expect": "haiku", "description": "Count test files", "prompt": "How many test files are there under tests/ and what test runner do they use? Just report back."}
+{"expect": "haiku", "description": "Run the linter", "prompt": "Run npm run lint and report any errors with file and line numbers. Don't fix anything."}
+{"expect": "haiku", "description": "Rename a variable", "prompt": "In src/utils/date.ts rename the variable tmp to formattedDate everywhere in that file."}
+{"expect": "haiku", "description": "Summarise a file", "prompt": "Read docs/architecture.md and give me a five-bullet summary of how the services talk to each other."}
+{"expect": "haiku", "description": "Check git history", "prompt": "Find the commit that last changed src/auth/session.ts and tell me who made it and when."}
+{"expect": "haiku", "description": "Locate route handler", "prompt": "Which file defines the handler for POST /api/orders? Return the path and function name."}
+{"expect": "haiku", "description": "Bump dependency", "prompt": "Update the version of lodash in package.json to 4.17.21 and run npm install."}
+{"expect": "sonnet", "description": "Add pagination endpoint", "prompt": "Add cursor-based pagination to the GET /api/orders endpoint, following the pattern used in /api/customers, and add tests."}
+{"expect": "sonnet", "description": "Write unit tests", "prompt": "Write unit tests for the PriceCalculator class covering discounts, tax and rounding. Use the existing vitest setup."}
+{"expect": "sonnet", "description": "Fix failing test", "prompt": "The test 'formats dates in UTC' in tests/date.test.ts is failing after the timezone change. Find out why and fix it."}
+{"expect": "sonnet", "description": "Implement CSV export", "prompt": "Implement a CSV export button on the reports page that downloads the currently filtered rows."}
+{"expect": "sonnet", "description": "Refactor form component", "prompt": "Refactor SignupForm.tsx to use the shared useForm hook instead of its own state handling. Keep behaviour identical."}
+{"expect": "sonnet", "description": "Add CLI flag", "prompt": "Add a --dry-run flag to the deploy script that prints the actions it would take without running them."}
+{"expect": "opus", "description": "Debug race condition", "prompt": "Orders are occasionally charged twice under load. Investigate the payment worker, the queue retry logic and the idempotency keys to find the race condition and propose a fix."}
+{"expect": "opus", "description": "Design caching layer", "prompt": "Design a caching strategy for the product catalogue API across the three services: what to cache, invalidation, consistency trade-offs, and a migration plan."}
+{"expect": "opus", "description": "Security review auth", "prompt": "Do a security review of the authentication flow: session handling, CSRF, token refresh and password reset. Identify vulnerabilities and rank them."}
+{"expect": "opus", "description": "Memory leak investigation", "prompt": "The Node service's memory grows steadily until it's OOM-killed every two days. Profile it, find the leak and explain the root cause."}
+{"expect": "opus", "description": "Plan database migration", "prompt": "Plan a zero-downtime migration from a single Postgres database to a sharded setup, covering schema changes, dual writes, backfill and rollback."}
+{"expect": "sonnet", "description": "Write README", "prompt": "Write a README for this repo: what it does, how to install it, how to run the tests, and how to deploy."}
+{"expect": "sonnet", "description": "Draft release notes", "prompt": "Draft release notes for v2.4 from the merged PRs since the last tag, grouped into features, fixes and breaking changes."}
+{"expect": "sonnet", "description": "Email to customers", "prompt": "Write a short email to customers explaining Saturday's two-hour outage, what caused it and what we're doing to prevent it."}
+{"expect": "sonnet", "description": "Write commit message", "prompt": "Write a clear commit message for the staged changes, which switch the image uploader from S3 to R2."}
+{"expect": "sonnet", "description": "Landing page copy", "prompt": "Write the headline and three short paragraphs of landing page copy for our new scheduling feature."}

@@ -76,6 +76,12 @@ expose the port. Logs are in `~/.decide/server.log`. Apps can call it directly:
 - `POST /v1/systemone` takes Jev-style requests (`{"state", "questions"}` with `noul`, `choice` and `score`
   questions) and returns Jev-style answers, so code written for Jev can point at it.
 
+## Claude Code: route subagents to cheaper models
+
+[`integrations/claude-code`](integrations/claude-code) has a hook that asks `decide` what kind of
+task each new Claude Code subagent has, and sends it to Haiku, Sonnet or Opus to match: simple
+lookups to Haiku, writing and everyday coding to Sonnet, hard reasoning to Opus.
+
 ## How good is it?
 
 Measured on the 231 public [JevBench](https://github.com/fstandhartinger/jevbench) tasks (commit `f8ce713`),
