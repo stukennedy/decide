@@ -1,3 +1,5 @@
+<img src="docs/icon-512.png" width="88" alt="decide logo: a thin d beside a heavy blue d">
+
 # decide
 
 Fast local decisions from the command line. Give it some context, a question and your options;
