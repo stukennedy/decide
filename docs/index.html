@@ -4,137 +4,356 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>decide: fast local decisions on your Mac</title>
-<meta name="description" content="A command-line tool that picks one of your options, with probabilities, in under 0.1 s. Runs locally on Apple Silicon.">
+<meta name="description" content="A command-line tool that picks one of your options, with probabilities, in under a tenth of a second. Runs locally on Apple Silicon.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Martian+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #fbfaf8; --fg: #1c1b19; --muted: #6b675f; --line: #e4e0d8;
-    --panel: #f2efe9; --term: #1d1c1a; --term-fg: #e9e6df; --accent: #c2410c; --good: #3f8f5a;
+    --paper: #f4f5f2;
+    --ink: #16181d;
+    --graphite: #6b7079;
+    --fog: #c3c7c0;
+    --rule: #dfe1dc;
+    --signal: #2f45f5;
+    --term: #16181d;
+    --term-ink: #e9ebef;
+    --term-dim: #8a909b;
+    --term-hi: #aeb9ff;
+    --display: "Bricolage Grotesque", ui-sans-serif, system-ui, -apple-system, sans-serif;
+    --mono: "Martian Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    --measure: 68rem;
     color-scheme: light;
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #151412; --fg: #ece9e3; --muted: #a09b91; --line: #2e2c28;
-      --panel: #1f1d1a; --term: #0e0d0c; --term-fg: #e9e6df; --accent: #f08a4b; --good: #6cc38a;
+      --paper: #0e1118; --ink: #e9ebef; --graphite: #9aa0ab; --fog: #3d4350; --rule: #232834;
+      --signal: #8c9bff; --term: #161a24; --term-ink: #e9ebef; --term-dim: #7d8492;
       color-scheme: dark;
     }
   }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--fg);
-         font: 17px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
-  main { max-width: 46rem; margin: 0 auto; padding: 4rem 1.25rem 5rem; }
-  h1 { font-size: 3rem; letter-spacing: -0.03em; margin: 0; line-height: 1; }
-  h1 span { color: var(--accent); }
-  .tag { font-size: 1.3rem; color: var(--muted); margin: .8rem 0 2.2rem; }
-  h2 { font-size: 1.15rem; margin: 3rem 0 .8rem; letter-spacing: -0.01em; }
-  p { margin: .6rem 0; }
-  a { color: var(--accent); }
-  code, pre, .cmd { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .86rem; }
-  :not(pre) > code { background: var(--panel); padding: .1em .35em; border-radius: 4px; }
-  .install { display: flex; align-items: center; gap: .5rem; background: var(--term); color: var(--term-fg);
-             border-radius: 10px; padding: .85rem .9rem .85rem 1.1rem; }
-  .install .cmd { flex: 1; overflow-x: auto; white-space: nowrap; }
-  .install .cmd::before { content: "$ "; color: #8a857b; }
-  button { font: inherit; font-size: .8rem; border: 1px solid #45423c; background: transparent; color: var(--term-fg);
-           border-radius: 6px; padding: .3rem .7rem; cursor: pointer; }
-  button:hover { background: #2c2a26; }
-  .req { font-size: .88rem; color: var(--muted); margin-top: .6rem; }
-  pre { background: var(--term); color: var(--term-fg); border-radius: 10px; padding: 1rem 1.1rem;
-        overflow-x: auto; line-height: 1.55; margin: .8rem 0; }
-  pre .p { color: #8a857b; } pre .c { color: #8a857b; } pre .w { color: #f3b27a; font-weight: 600; }
-  .table { overflow-x: auto; margin: .8rem 0; }
-  table { border-collapse: collapse; width: 100%; font-size: .9rem; }
-  th, td { text-align: left; padding: .45rem .6rem; border-bottom: 1px solid var(--line); white-space: nowrap; }
-  th { color: var(--muted); font-weight: 500; }
-  tr.me td { font-weight: 600; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: .8rem; margin: 1rem 0; }
-  .card { border: 1px solid var(--line); border-radius: 10px; padding: .9rem 1rem; }
-  .card b { display: block; margin-bottom: .2rem; }
-  .card p { margin: 0; color: var(--muted); font-size: .92rem; }
-  ul { padding-left: 1.2rem; } li { margin: .35rem 0; }
-  footer { margin-top: 4rem; padding-top: 1.2rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .85rem; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font: 400 1.0625rem/1.6 var(--display); font-variation-settings: "opsz" 16;
+  }
+  a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: .2em; }
+  a:hover { color: var(--signal); }
+  :focus-visible { outline: 2px solid var(--signal); outline-offset: 3px; border-radius: 3px; }
+  code { font: .86em var(--mono); }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .wrap { max-width: var(--measure); margin: 0 auto; padding-inline: clamp(1rem, 4vw, 2.5rem); }
+
+  /* top bar */
+  .bar { display: flex; justify-content: space-between; align-items: baseline; padding-block: 1.6rem 0; }
+  .brand { font-weight: 700; font-size: 1.15rem; letter-spacing: -0.01em; text-decoration: none; }
+  .bar nav a { color: var(--graphite); text-decoration: none; margin-left: 1.4rem; font-size: .95rem; }
+  .bar nav a:hover { color: var(--ink); }
+
+  /* hero: the decision itself. Each option's weight is its probability. */
+  .hero { padding-block: clamp(3rem, 8vw, 6rem) clamp(2.5rem, 6vw, 4rem); }
+  .ask { max-width: 40rem; margin: 0 0 clamp(1.4rem, 3vw, 2rem); }
+  .ask .q { font-size: clamp(1.25rem, 2.2vw, 1.6rem); line-height: 1.3; font-weight: 600; letter-spacing: -0.01em; margin: 0; }
+  .ask .ctx { color: var(--graphite); margin: .35rem 0 0; font-size: 1.05rem; }
+  .options { list-style: none; margin: 0; padding: 0; min-height: calc(3 * clamp(3.4rem, 11.5vw, 9.3rem)); }
+  .opt {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; column-gap: 1.5rem;
+    position: relative; padding-bottom: .4rem; margin-bottom: clamp(.25rem, 1vw, .6rem);
+  }
+  .opt .word {
+    font-size: clamp(3rem, 11vw, 8.75rem); line-height: .95; letter-spacing: -0.035em;
+    font-variation-settings: "opsz" 96, "wdth" 88; font-weight: 450; color: var(--fog);
+    transition: font-weight .9s cubic-bezier(.2,.7,.1,1), color .9s ease;
+    overflow-wrap: anywhere;
+  }
+  .opt .p {
+    font-size: clamp(1rem, 1.6vw, 1.25rem); font-variant-numeric: tabular-nums; color: var(--graphite);
+    padding-bottom: .9em; transition: color .9s ease;
+  }
+  .opt .track, .opt .fill { position: absolute; left: 0; bottom: 0; height: 3px; }
+  .opt .track { right: 0; background: var(--rule); }
+  .opt .fill { width: 0; background: var(--fog); transition: width .9s cubic-bezier(.2,.7,.1,1), background .9s ease; }
+  .opt.win .word { color: var(--signal); }
+  .opt.win .p { color: var(--ink); font-weight: 600; }
+  .opt.win .fill { background: var(--signal); }
+
+  .examples { display: flex; flex-wrap: wrap; gap: .5rem; margin: clamp(1.5rem, 3vw, 2.1rem) 0 .7rem; }
+  .examples button {
+    font: inherit; font-size: .92rem; color: var(--ink); background: transparent;
+    border: 1px solid var(--fog); border-radius: 999px; padding: .38rem .9rem; cursor: pointer;
+  }
+  .examples button:hover { border-color: var(--ink); }
+  .examples button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .provenance { color: var(--graphite); font-size: .9rem; margin: 0; }
+
+  /* install */
+  .install { padding-block: 0 clamp(3.5rem, 8vw, 6rem); }
+  .install h1 {
+    font-size: clamp(1.9rem, 4.2vw, 3.1rem); line-height: 1.08; letter-spacing: -0.025em; font-weight: 700;
+    font-variation-settings: "opsz" 72; margin: 0 0 1.4rem; max-width: 21ch;
+  }
+  .cmd {
+    display: flex; align-items: center; gap: .75rem; max-width: 46rem;
+    background: var(--term); color: var(--term-ink); border-radius: 12px; padding: .8rem .8rem .8rem 1.2rem;
+  }
+  .cmd code { flex: 1; min-width: 0; overflow-x: auto; white-space: nowrap; font-size: .9rem; line-height: 1.5; }
+  .cmd code::before { content: "$ "; color: var(--term-dim); }
+  .cmd button {
+    font: 600 .88rem var(--display); color: var(--term); background: var(--term-ink); border: 0;
+    border-radius: 8px; padding: .55rem 1rem; cursor: pointer; flex: none;
+  }
+  .cmd button:hover { background: #fff; }
+  .needs { color: var(--graphite); margin: .9rem 0 0; max-width: 46rem; font-size: .95rem; }
+
+  /* sections */
+  section.block { border-top: 1px solid var(--rule); padding-block: clamp(3rem, 7vw, 5rem); }
+  .block h2 { font-size: clamp(1.5rem, 2.8vw, 2.1rem); letter-spacing: -0.02em; line-height: 1.15; font-weight: 700; margin: 0 0 .8rem; max-width: 24ch; }
+  .block .lede { color: var(--graphite); max-width: 38rem; margin: 0 0 2rem; }
+  .split { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(2rem, 5vw, 4rem); align-items: start; }
+  pre {
+    margin: 0; background: var(--term); color: var(--term-ink); border-radius: 12px; padding: 1.2rem 1.3rem;
+    overflow-x: auto; font: 400 .8rem/1.8 var(--mono);
+  }
+  pre .c, pre .d { color: var(--term-dim); }
+  pre .d { user-select: none; }
+  pre .w { color: var(--term-hi); font-weight: 600; }
+  .uses { list-style: none; padding: 0; margin: 1.6rem 0 0; }
+  .uses li { padding: .85rem 0; border-top: 1px solid var(--rule); }
+  .uses b { display: block; font-weight: 600; }
+  .uses span { color: var(--graphite); }
+
+  /* accuracy */
+  .table { overflow-x: auto; }
+  .bench { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  .bench th { text-align: left; font-weight: 500; color: var(--graphite); font-size: .92rem; padding: 0 1.2rem .7rem 0; }
+  .bench td { padding: .9rem 1.2rem .9rem 0; border-top: 1px solid var(--rule); vertical-align: middle; white-space: nowrap; }
+  .bench td:first-child { white-space: normal; min-width: 10rem; }
+  .bench .me td { font-weight: 600; }
+  .meter { display: inline-block; width: clamp(3rem, 9vw, 7rem); height: 6px; background: var(--rule); border-radius: 3px; vertical-align: middle; margin-right: .7rem; position: relative; overflow: hidden; }
+  .meter i { position: absolute; inset: 0 auto 0 0; background: var(--graphite); border-radius: 3px; }
+  .me .meter i { background: var(--ink); }
+  .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 1.5rem 2.5rem; margin-top: 2.5rem; }
+  .notes p { margin: 0; color: var(--graphite); }
+  .notes b { color: var(--ink); font-weight: 600; }
+
+  .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 1.8rem 2.5rem; margin: 1.6rem 0 0; }
+  .facts dt { font-weight: 600; }
+  .facts dd { margin: .25rem 0 0; color: var(--graphite); }
+
+  footer { border-top: 1px solid var(--rule); padding-block: 2rem 3rem; color: var(--graphite); font-size: .9rem; }
+  footer p { margin: .3rem 0; max-width: 50rem; }
+
+  @media (max-width: 760px) {
+    .split { grid-template-columns: minmax(0, 1fr); }
+    .opt { column-gap: .8rem; }
+    .bar nav a:first-child { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .opt .word, .opt .p, .opt .fill { transition: none; }
+  }
 </style>
 </head>
 <body>
-<main>
-  <h1>decide<span>.</span></h1>
-  <p class="tag">Pick one of your options, with probabilities, in under a tenth of a second. Runs on your Mac.</p>
+<div class="wrap">
+  <header class="bar">
+    <a class="brand" href="/">decide</a>
+    <nav><a href="#use">Use</a><a href="#accuracy">Accuracy</a><a href="https://github.com/stukennedy/decide">GitHub</a></nav>
+  </header>
 
-  <div class="install">
-    <span class="cmd" id="cmd">curl -fsSL https://decide.run/install | sh</span>
-    <button type="button" id="copy">Copy</button>
-  </div>
-  <p class="req">Apple Silicon Mac (M1 or later) · ~9 GB disk · ~10 GB free memory. No API key, and nothing leaves your machine.</p>
+  <main>
+    <section class="hero" aria-labelledby="demo-q">
+      <div class="ask">
+        <p class="q" id="demo-q">Which team should handle this?</p>
+        <p class="ctx" id="demo-ctx">Customer: I was charged twice for order 1182.</p>
+      </div>
+      <ol class="options" id="demo-options" aria-live="polite">
+        <li class="opt win"><span class="word" style="font-weight:800">billing</span><span class="p">1.000</span><span class="track"></span><span class="fill" style="width:100%"></span></li>
+        <li class="opt"><span class="word" style="font-weight:200">shipping</span><span class="p">0.000</span><span class="track"></span><span class="fill"></span></li>
+        <li class="opt"><span class="word" style="font-weight:200">tech</span><span class="p">0.000</span><span class="track"></span><span class="fill"></span></li>
+      </ol>
+      <div class="examples" role="group" aria-label="Example decisions" id="demo-examples"></div>
+      <p class="provenance">Real answers from <code>decide</code> on an M5 Max. Each took about 0.04 seconds.</p>
+    </section>
 
-  <pre><span class="p">$</span> decide ask "Customer: I was charged twice for order 1182." "Which team?" billing shipping tech
-<span class="w">billing</span>
-  billing   1.000
-  shipping  0.000
-  tech      0.000</pre>
+    <section class="install" aria-labelledby="install-h">
+      <h1 id="install-h">Give it a question and your options. It picks one, on your Mac, in a blink.</h1>
+      <div class="cmd">
+        <code id="cmd">curl -fsSL https://decide.run/install | sh</code>
+        <button type="button" id="copy">Copy</button>
+      </div>
+      <p class="needs">Needs an Apple Silicon Mac, about 9&nbsp;GB of disk and 10&nbsp;GB of free memory. No API key, and nothing leaves your machine.</p>
+    </section>
 
-  <h2>Use it anywhere you'd write an if statement about text</h2>
-<pre><span class="c"># describe options with id=description</span>
-<span class="p">$</span> decide ask "Policy: refunds need a receipt. Customer has none." "Refund allowed?" \
-    "allowed=refund is permitted" "denied=refund is not permitted"
+    <section class="block" id="use" aria-labelledby="use-h">
+      <div class="split">
+        <div>
+          <h2 id="use-h">Use it wherever you'd write an if statement about text</h2>
+          <ul class="uses">
+            <li><b>Route messages</b><span>Send each ticket or email to the right queue.</span></li>
+            <li><b>Check rules</b><span>Does this request meet the policy, yes or no?</span></li>
+            <li><b>Steer an agent</b><span>Pick the next tool, or decide whether to hand over to a person.</span></li>
+            <li><b>Label a backlog</b><span>Run thousands of decisions from a file in one go.</span></li>
+          </ul>
+        </div>
+<pre><span class="c"># options are id, or id=description</span>
+<span class="d">$ </span>decide ask \
+    "Policy: refunds need a receipt. Customer has none." \
+    "Is a refund allowed?" \
+    "allowed=refund is permitted" "denied=not permitted"
+<span class="w">denied</span>
+  denied   0.999
+  allowed  0.001
 
-<span class="c"># -q prints just the winner, for scripts</span>
-<span class="p">$</span> team=$(decide ask -q "$(cat ticket.txt)" "Which team?" billing shipping tech)
+<span class="c"># -q prints only the answer, for scripts</span>
+<span class="d">$ </span>team=$(decide ask -q "$(cat ticket.txt)" \
+    "Which team?" billing shipping tech)
 
-<span class="c"># read the context from stdin</span>
-<span class="p">$</span> cat email.txt | decide ask - "Does it ask for a refund?" yes no
+<span class="c"># read the context from a pipe</span>
+<span class="d">$ </span>cat email.txt | decide ask - \
+    "Does it ask for a refund?" yes no
 
-<span class="c"># thousands of decisions from a JSONL file</span>
-<span class="p">$</span> decide score decisions.jsonl</pre>
+<span class="c"># many decisions from a JSONL file</span>
+<span class="d">$ </span>decide score decisions.jsonl</pre>
+      </div>
+    </section>
 
-  <div class="grid">
-    <div class="card"><b>Fast</b><p>~0.08 s per decision. The model stays loaded in a small background server that starts on its own.</p></div>
-    <div class="card"><b>Private</b><p>Runs on your GPU with Apple's MLX. The server only listens on 127.0.0.1.</p></div>
-    <div class="card"><b>Jev-compatible</b><p>Apps can POST Jev-style requests to <code>localhost:8792/v1/systemone</code>.</p></div>
-  </div>
+    <section class="block" id="accuracy" aria-labelledby="accuracy-h">
+      <h2 id="accuracy-h">As good as the big models on everyday decisions</h2>
+      <p class="lede">Scored on the 231 public <a href="https://github.com/fstandhartinger/jevbench">JevBench</a> tasks. Short tasks are routing, policy checks, intent and extraction. Hard tasks are long documents and multi-step reasoning.</p>
+      <div class="table">
+        <table class="bench">
+          <thead><tr><th scope="col"><span class="sr">Model</span></th><th scope="col">Short tasks</th><th scope="col">Hard tasks</th><th scope="col">Typical time</th></tr></thead>
+          <tbody>
+            <tr class="me"><td>decide, 4B model on your Mac</td>
+              <td><span class="meter"><i style="width:99.2%"></i></span>119 of 120</td>
+              <td><span class="meter"><i style="width:60.4%"></i></span>67 of 111</td>
+              <td>0.08 s</td></tr>
+            <tr><td>Jev 1.13, hosted API</td>
+              <td><span class="meter"><i style="width:99.2%"></i></span>119 of 120</td>
+              <td><span class="meter"><i style="width:71.2%"></i></span>79 of 111</td>
+              <td>0.62 s</td></tr>
+            <tr><td>Open-Jev 27B, same Mac</td>
+              <td><span class="meter"><i style="width:97.5%"></i></span>117 of 120</td>
+              <td><span class="meter"><i style="width:73.0%"></i></span>81 of 111</td>
+              <td>1.36 s</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="notes">
+        <p><b>Use a bigger model for the hard stuff.</b> On long documents and multi-step reasoning, decide gets about 60% where the large models get 71–73%.</p>
+        <p><b>Trust the choice, check the confidence.</b> The probabilities aren't calibrated, so test them on examples you've labelled before relying on them.</p>
+        <p><b>Name options clearly.</b> A small model reads your wording closely. Describe options plainly and keep their order consistent.</p>
+      </div>
+    </section>
 
-  <h2>How good is it?</h2>
-  <p>On the 231 public <a href="https://github.com/fstandhartinger/jevbench">JevBench</a> tasks:</p>
-  <div class="table"><table>
-    <tr><th></th><th>All</th><th>Short tasks</th><th>Hard tasks</th><th>Median time</th></tr>
-    <tr class="me"><td>decide (4B, on an M5 Max)</td><td>186/231</td><td>119/120</td><td>67/111</td><td>0.08 s</td></tr>
-    <tr><td>Jev 1.13 (hosted API)</td><td>198/231</td><td>119/120</td><td>79/111</td><td>0.62 s</td></tr>
-    <tr><td>Open-Jev 27B (same Mac)</td><td>198/231</td><td>117/120</td><td>81/111</td><td>1.36 s</td></tr>
-  </table></div>
-  <p>It matches much bigger models on short, well-specified decisions: routing, policy checks, intent, extraction,
-  tool choice. It's weaker on long documents and multi-step reasoning, so use a bigger model for those.</p>
-  <ul>
-    <li><b>Probabilities aren't calibrated.</b> Trust the choice; check the confidence on your own labelled examples before relying on it.</li>
-    <li><b>Wording matters.</b> Give options clear names or descriptions, and keep their order consistent.</li>
-    <li><b>Inputs are capped at 4,096 tokens</b> (about 3,000 words). Longer ones are rejected, never truncated.</li>
-  </ul>
-
-  <h2>Managing it</h2>
-<pre><span class="p">$</span> decide status     <span class="c"># is the background server running?</span>
-<span class="p">$</span> decide stop       <span class="c"># free its memory</span>
-<span class="p">$</span> decide --help</pre>
-  <p>Uninstall with <code>decide stop &amp;&amp; uv tool uninstall decide-cli</code>, then delete <code>~/.decide</code>
-  and the model at <code>~/.cache/huggingface/hub/models--Qwen--Qwen3.5-4B</code>.</p>
-
-  <h2>What the installer does</h2>
-  <p>It checks you're on Apple Silicon with Git available, installs <a href="https://docs.astral.sh/uv/">uv</a> if needed,
-  installs <code>decide</code> into its own Python 3.12 environment, downloads the pinned model once, and runs a test decision.
-  <a href="https://github.com/stukennedy/decide/blob/main/docs/install.sh">Read the script</a> before running it.</p>
+    <section class="block" aria-labelledby="details-h">
+      <h2 id="details-h">What you're installing</h2>
+      <dl class="facts">
+        <div><dt>The installer</dt><dd>Checks for Apple Silicon and Git, installs <a href="https://docs.astral.sh/uv/">uv</a> if needed, puts decide in its own Python environment, downloads the model once and runs a test decision. <a href="/install.sh">Read the script</a>.</dd></div>
+        <div><dt>The model</dt><dd>Qwen3.5-4B, unmodified, pinned to one revision and run with Apple's MLX. decide reads the model's preference for each option directly; no text is generated.</dd></div>
+        <div><dt>The background server</dt><dd>Keeps the model loaded so answers come back instantly. It starts on first use, listens only on <code>127.0.0.1</code>, and <code>decide stop</code> frees its memory.</dd></div>
+        <div><dt>For apps</dt><dd>POST decisions to <code>localhost:8792/score</code>, or send Jev-style requests to <code>/v1/systemone</code>.</dd></div>
+        <div><dt>Removing it</dt><dd>Run <code>decide stop</code> and <code>uv tool uninstall decide-cli</code>, then delete <code>~/.decide</code> and the model in <code>~/.cache/huggingface</code>.</dd></div>
+      </dl>
+    </section>
+  </main>
 
   <footer>
-    MIT licensed · <a href="https://github.com/stukennedy/decide">Source on GitHub</a><br>
-    Scoring method after <a href="https://github.com/TheoLeeCJ/openjev">SemIf</a> by Theodore Lee (MIT). Runs
-    <a href="https://huggingface.co/Qwen/Qwen3.5-4B">Qwen3.5-4B</a> by the Qwen team (Apache-2.0) on
-    <a href="https://github.com/ml-explore/mlx">MLX</a> by Apple. Not affiliated with TypeSafe AI or Jev.
+    <p>MIT licensed. <a href="https://github.com/stukennedy/decide">Source on GitHub</a>.</p>
+    <p>The scoring method follows <a href="https://github.com/TheoLeeCJ/openjev">SemIf</a> by Theodore Lee (MIT). It runs <a href="https://huggingface.co/Qwen/Qwen3.5-4B">Qwen3.5-4B</a> by the Qwen team (Apache-2.0) on <a href="https://github.com/ml-explore/mlx">MLX</a> by Apple. Not affiliated with TypeSafe AI or Jev.</p>
   </footer>
-</main>
+</div>
+
 <script>
-  document.getElementById("copy").addEventListener("click", async (e) => {
+  // Real outputs recorded from decide (Qwen3.5-4B, MLX, M5 Max), exactly as the CLI returned them.
+  const EXAMPLES = [
+    { label: "Double charge", q: "Which team should handle this?", ctx: "Customer: I was charged twice for order 1182.",
+      opts: [["billing", 1.000], ["shipping", 0.000], ["tech", 0.000]] },
+    { label: "Keeps logging out", q: "Which team?", ctx: "Hi, the app logs me out every time I open it on my iPhone.",
+      opts: [["billing", 0.042], ["shipping", 0.007], ["tech", 0.951]] },
+    { label: "Cracked screen", q: "Which team?", ctx: "Order arrived with a cracked screen.",
+      opts: [["returns", 0.565], ["billing", 0.046], ["shipping", 0.388]] },
+    { label: "CPU alert", q: "How severe is this?", ctx: "Server CPU at 99% for 20 minutes, errors rising.",
+      opts: [["low", 0.008], ["medium", 0.007], ["high", 0.290], ["critical", 0.696]] },
+  ];
+
+  const list = document.getElementById("demo-options");
+  const qEl = document.getElementById("demo-q");
+  const ctxEl = document.getElementById("demo-ctx");
+  const chips = document.getElementById("demo-examples");
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const weight = p => Math.round(200 + 600 * Math.sqrt(p));   // 200 (ruled out) to 800 (certain)
+  let run = 0;
+
+  function render(ex) {
+    const id = ++run;
+    qEl.textContent = ex.q;
+    ctxEl.textContent = ex.ctx;
+    list.innerHTML = "";
+    const n = ex.opts.length;
+    const best = ex.opts.reduce((a, b) => (b[1] > a[1] ? b : a))[0];
+    const rows = ex.opts.map(([name, p]) => {
+      const li = document.createElement("li");
+      li.className = "opt";
+      li.innerHTML = '<span class="word"></span><span class="p"></span><span class="track"></span><span class="fill"></span>';
+      li.querySelector(".word").textContent = name;
+      li.setAttribute("aria-label", `${name}: ${p.toFixed(3)}${name === best ? ", chosen" : ""}`);
+      list.appendChild(li);
+      return { li, name, p };
+    });
+    const settle = () => rows.forEach(({ li, name, p }) => {
+      li.classList.toggle("win", name === best);
+      li.querySelector(".word").style.fontWeight = weight(p);
+      li.querySelector(".fill").style.width = `${p * 100}%`;
+      li.querySelector(".p").textContent = p.toFixed(3);
+    });
+    if (reduce) return settle();
+    // start undecided, every option equal, then let the answer settle
+    rows.forEach(({ li }) => {
+      li.querySelector(".word").style.fontWeight = weight(1 / n);
+      li.querySelector(".fill").style.width = `${100 / n}%`;
+      li.querySelector(".p").textContent = (1 / n).toFixed(3);
+    });
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      if (id !== run) return;
+      settle();
+      const start = performance.now();
+      const tick = now => {
+        if (id !== run) return;
+        const t = Math.min(1, Math.max(0, (now - start) / 900)), e = 1 - Math.pow(1 - t, 3);
+        rows.forEach(({ li, p }) => (li.querySelector(".p").textContent = (1 / n + (p - 1 / n) * e).toFixed(3)));
+        if (t < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+      // land on the exact values even if animation frames are throttled (background tab)
+      setTimeout(() => { if (id === run) rows.forEach(({ li, p }) => (li.querySelector(".p").textContent = p.toFixed(3))); }, 1000);
+    }));
+  }
+
+  EXAMPLES.forEach((ex, i) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.textContent = ex.label;
+    b.setAttribute("aria-pressed", String(i === 0));
+    b.addEventListener("click", () => {
+      chips.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+      render(ex);
+    });
+    chips.appendChild(b);
+  });
+  // the page ships with the first answer already settled; replay it once so the idea lands
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => setTimeout(() => render(EXAMPLES[0]), 400));
+
+  document.getElementById("copy").addEventListener("click", async e => {
+    const btn = e.currentTarget;
     try {
       await navigator.clipboard.writeText(document.getElementById("cmd").textContent);
-      e.target.textContent = "Copied";
+      btn.textContent = "Copied";
     } catch {
-      e.target.textContent = "Select and copy";
+      btn.textContent = "Select and copy";
     }
-    setTimeout(() => (e.target.textContent = "Copy"), 1500);
+    setTimeout(() => (btn.textContent = "Copy"), 1600);
   });
 </script>
 </body>
