@@ -152,6 +152,12 @@
   .bench .me td { color: var(--ink); font-weight: 700; border-bottom: 3px solid var(--green); }
   .bench .me td:first-child { color: var(--green); font-weight: 700; }
   .bench tbody tr:last-child td { border-bottom: 1px solid var(--rule); }
+  .sizes-h { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.02em; margin: 3.2rem 0 .5rem; }
+  .sizes-lede { color: var(--muted); margin: 0 0 1.4rem; max-width: 44rem; }
+  .sizes td { color: var(--ink); }
+  .sizes td:first-child { color: var(--ink); font-weight: 700; }
+  .sizes td.fit { font: 400 .95rem var(--display); color: var(--muted); text-align: left; white-space: normal; min-width: 12rem; }
+  .sizes th.fit { text-align: left; }
   .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); gap: 2rem 2.5rem; margin-top: 3rem; }
   .notes p { margin: 0; color: var(--muted); }
   .notes b { display: block; color: var(--ink); font-weight: 700; margin-bottom: .35rem; }
@@ -277,6 +283,18 @@
               <td>117 of 120</td>
               <td>81 of 111</td>
               <td>1.36 s</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3 class="sizes-h" id="sizes">Pick a size for your Mac</h3>
+      <p class="sizes-lede">decide can load the model at lower precision to use less memory. It picks 8-bit on Macs with 24&nbsp;GB of RAM or less; choose for yourself with <code>decide start --bits 16</code>, <code>8</code> or <code>4</code>.</p>
+      <div class="table">
+        <table class="bench sizes">
+          <thead><tr><th scope="col">Precision</th><th scope="col">Memory</th><th scope="col">Short tasks</th><th scope="col">Hard tasks</th><th scope="col">Typical time</th><th scope="col" class="fit">Good for</th></tr></thead>
+          <tbody>
+            <tr><td>Full (16-bit)</td><td>8.0 GB</td><td>119 of 120</td><td>67 of 111</td><td>0.08 s</td><td class="fit">Macs with 32&nbsp;GB or more</td></tr>
+            <tr><td>8-bit</td><td>4.4 GB</td><td>118 of 120</td><td>67 of 111</td><td>0.06 s</td><td class="fit">16 and 24&nbsp;GB Macs</td></tr>
+            <tr><td>4-bit</td><td>2.5 GB</td><td>117 of 120</td><td>63 of 111</td><td>0.07 s</td><td class="fit">When memory is tight; weaker on hard tasks</td></tr>
           </tbody>
         </table>
       </div>

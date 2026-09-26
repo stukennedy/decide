@@ -111,12 +111,13 @@ Things to know:
 
 | Precision | Memory | JevBench (231 tasks) | Used by default on |
 |---|---|---|---|
-| Full (BF16) | ~8 GB | 186 | Macs with more than 24 GB of RAM |
-| 8-bit | ~4.5 GB | 185 | Macs with 24 GB or less |
-| 4-bit | ~2.5 GB | 180 | only if you ask for it |
+| Full (BF16) | ~8 GB | 186 (short 119/120, hard 67/111) | Macs with more than 24 GB of RAM |
+| 8-bit | ~4.5 GB | 185 (short 118/120, hard 67/111) | Macs with 24 GB or less |
+| 4-bit | ~2.5 GB | 180 (short 117/120, hard 63/111) | only if you ask for it |
 
-Choose explicitly with `DECIDE_BITS=16`, `8` or `4` when the server starts
-(`decide stop`, then `DECIDE_BITS=8 decide start`). `decide status` shows which one is running.
+Choose for yourself with `decide start --bits 16`, `8` or `4` (run `decide stop` first if a server
+is already running), or set `DECIDE_BITS` so servers started automatically use it too.
+`decide status` shows which one is running.
 If answers are slow or `decide` seems stuck, the Mac is probably short of memory: check
 `memory_pressure` and quit something large, like a VM or Docker.
 

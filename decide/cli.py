@@ -206,9 +206,19 @@ def cmd_status(args):
         sys.exit(1)
 
 
+PRECISION = {"16": "bf16", "8": "8-bit", "4": "4-bit"}
+
+
 def cmd_start(args):
+    if args.bits:
+        os.environ["DECIDE_BITS"] = args.bits  # inherited by the server process start() launches
+        running = health()
+        if running and running.get("precision", "bf16") != PRECISION[args.bits]:
+            raise DecideError(f"the server is already running at {running.get('precision', 'bf16')}; "
+                              f"run `decide stop` first, then `decide start --bits {args.bits}`")
     start()
-    print(f"decide server ready at {URL}")
+    h = health() or {}
+    print(f"decide server ready at {URL} ({h.get('precision', 'bf16')})")
 
 
 def cmd_setup(args):
@@ -246,7 +256,13 @@ def main(argv=None):
     s.set_defaults(func=cmd_score)
 
     sub.add_parser("setup", help="download the model and run a test decision").set_defaults(func=cmd_setup)
-    sub.add_parser("start", help="start the background server").set_defaults(func=cmd_start)
+    st = sub.add_parser("start", help="start the background server",
+                        description="Start the background server. By default the model loads at full precision "
+                                    "(bf16, ~8 GB), or 8-bit (~4.5 GB) on Macs with 24 GB of RAM or less.")
+    st.add_argument("--bits", choices=["16", "8", "4"],
+                    help="model precision: 16 (~8 GB, 186/231 on JevBench), 8 (~4.5 GB, 185/231) "
+                         "or 4 (~2.5 GB, 180/231)")
+    st.set_defaults(func=cmd_start)
     sub.add_parser("stop", help="stop the background server and free its memory").set_defaults(
         func=lambda _: stop())
     sub.add_parser("status", help="show whether the server is running").set_defaults(func=cmd_status)
