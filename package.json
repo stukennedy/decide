@@ -1,0 +1,12 @@
+{
+  "name": "decide-site",
+  "private": true,
+  "description": "Deploys docs/ (website + install.sh) as a static Cloudflare Worker; served at https://decide.run",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "preview": "wrangler dev"
+  },
+  "devDependencies": {
+    "wrangler": "^4.141.0"
+  }
+}

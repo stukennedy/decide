@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>decide: fast local decisions on your Mac</title>
+<meta name="description" content="A command-line tool that picks one of your options, with probabilities, in under 0.1 s. Runs locally on Apple Silicon.">
+<style>
+  :root {
+    --bg: #fbfaf8; --fg: #1c1b19; --muted: #6b675f; --line: #e4e0d8;
+    --panel: #f2efe9; --term: #1d1c1a; --term-fg: #e9e6df; --accent: #c2410c; --good: #3f8f5a;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #151412; --fg: #ece9e3; --muted: #a09b91; --line: #2e2c28;
+      --panel: #1f1d1a; --term: #0e0d0c; --term-fg: #e9e6df; --accent: #f08a4b; --good: #6cc38a;
+      color-scheme: dark;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg);
+         font: 17px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 46rem; margin: 0 auto; padding: 4rem 1.25rem 5rem; }
+  h1 { font-size: 3rem; letter-spacing: -0.03em; margin: 0; line-height: 1; }
+  h1 span { color: var(--accent); }
+  .tag { font-size: 1.3rem; color: var(--muted); margin: .8rem 0 2.2rem; }
+  h2 { font-size: 1.15rem; margin: 3rem 0 .8rem; letter-spacing: -0.01em; }
+  p { margin: .6rem 0; }
+  a { color: var(--accent); }
+  code, pre, .cmd { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .86rem; }
+  :not(pre) > code { background: var(--panel); padding: .1em .35em; border-radius: 4px; }
+  .install { display: flex; align-items: center; gap: .5rem; background: var(--term); color: var(--term-fg);
+             border-radius: 10px; padding: .85rem .9rem .85rem 1.1rem; }
+  .install .cmd { flex: 1; overflow-x: auto; white-space: nowrap; }
+  .install .cmd::before { content: "$ "; color: #8a857b; }
+  button { font: inherit; font-size: .8rem; border: 1px solid #45423c; background: transparent; color: var(--term-fg);
+           border-radius: 6px; padding: .3rem .7rem; cursor: pointer; }
+  button:hover { background: #2c2a26; }
+  .req { font-size: .88rem; color: var(--muted); margin-top: .6rem; }
+  pre { background: var(--term); color: var(--term-fg); border-radius: 10px; padding: 1rem 1.1rem;
+        overflow-x: auto; line-height: 1.55; margin: .8rem 0; }
+  pre .p { color: #8a857b; } pre .c { color: #8a857b; } pre .w { color: #f3b27a; font-weight: 600; }
+  .table { overflow-x: auto; margin: .8rem 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+  th, td { text-align: left; padding: .45rem .6rem; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th { color: var(--muted); font-weight: 500; }
+  tr.me td { font-weight: 600; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: .8rem; margin: 1rem 0; }
+  .card { border: 1px solid var(--line); border-radius: 10px; padding: .9rem 1rem; }
+  .card b { display: block; margin-bottom: .2rem; }
+  .card p { margin: 0; color: var(--muted); font-size: .92rem; }
+  ul { padding-left: 1.2rem; } li { margin: .35rem 0; }
+  footer { margin-top: 4rem; padding-top: 1.2rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .85rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>decide<span>.</span></h1>
+  <p class="tag">Pick one of your options, with probabilities, in under a tenth of a second. Runs on your Mac.</p>
+
+  <div class="install">
+    <span class="cmd" id="cmd">curl -fsSL https://decide.run/install | sh</span>
+    <button type="button" id="copy">Copy</button>
+  </div>
+  <p class="req">Apple Silicon Mac (M1 or later) · ~9 GB disk · ~10 GB free memory. No API key, and nothing leaves your machine.</p>
+
+  <pre><span class="p">$</span> decide ask "Customer: I was charged twice for order 1182." "Which team?" billing shipping tech
+<span class="w">billing</span>
+  billing   1.000
+  shipping  0.000
+  tech      0.000</pre>
+
+  <h2>Use it anywhere you'd write an if statement about text</h2>
+<pre><span class="c"># describe options with id=description</span>
+<span class="p">$</span> decide ask "Policy: refunds need a receipt. Customer has none." "Refund allowed?" \
+    "allowed=refund is permitted" "denied=refund is not permitted"
+
+<span class="c"># -q prints just the winner, for scripts</span>
+<span class="p">$</span> team=$(decide ask -q "$(cat ticket.txt)" "Which team?" billing shipping tech)
+
+<span class="c"># read the context from stdin</span>
+<span class="p">$</span> cat email.txt | decide ask - "Does it ask for a refund?" yes no
+
+<span class="c"># thousands of decisions from a JSONL file</span>
+<span class="p">$</span> decide score decisions.jsonl</pre>
+
+  <div class="grid">
+    <div class="card"><b>Fast</b><p>~0.08 s per decision. The model stays loaded in a small background server that starts on its own.</p></div>
+    <div class="card"><b>Private</b><p>Runs on your GPU with Apple's MLX. The server only listens on 127.0.0.1.</p></div>
+    <div class="card"><b>Jev-compatible</b><p>Apps can POST Jev-style requests to <code>localhost:8792/v1/systemone</code>.</p></div>
+  </div>
+
+  <h2>How good is it?</h2>
+  <p>On the 231 public <a href="https://github.com/fstandhartinger/jevbench">JevBench</a> tasks:</p>
+  <div class="table"><table>
+    <tr><th></th><th>All</th><th>Short tasks</th><th>Hard tasks</th><th>Median time</th></tr>
+    <tr class="me"><td>decide (4B, on an M5 Max)</td><td>186/231</td><td>119/120</td><td>67/111</td><td>0.08 s</td></tr>
+    <tr><td>Jev 1.13 (hosted API)</td><td>198/231</td><td>119/120</td><td>79/111</td><td>0.62 s</td></tr>
+    <tr><td>Open-Jev 27B (same Mac)</td><td>198/231</td><td>117/120</td><td>81/111</td><td>1.36 s</td></tr>
+  </table></div>
+  <p>It matches much bigger models on short, well-specified decisions: routing, policy checks, intent, extraction,
+  tool choice. It's weaker on long documents and multi-step reasoning, so use a bigger model for those.</p>
+  <ul>
+    <li><b>Probabilities aren't calibrated.</b> Trust the choice; check the confidence on your own labelled examples before relying on it.</li>
+    <li><b>Wording matters.</b> Give options clear names or descriptions, and keep their order consistent.</li>
+    <li><b>Inputs are capped at 4,096 tokens</b> (about 3,000 words). Longer ones are rejected, never truncated.</li>
+  </ul>
+
+  <h2>Managing it</h2>
+<pre><span class="p">$</span> decide status     <span class="c"># is the background server running?</span>
+<span class="p">$</span> decide stop       <span class="c"># free its memory</span>
+<span class="p">$</span> decide --help</pre>
+  <p>Uninstall with <code>decide stop &amp;&amp; uv tool uninstall decide-cli</code>, then delete <code>~/.decide</code>
+  and the model at <code>~/.cache/huggingface/hub/models--Qwen--Qwen3.5-4B</code>.</p>
+
+  <h2>What the installer does</h2>
+  <p>It checks you're on Apple Silicon with Git available, installs <a href="https://docs.astral.sh/uv/">uv</a> if needed,
+  installs <code>decide</code> into its own Python 3.12 environment, downloads the pinned model once, and runs a test decision.
+  <a href="https://github.com/stukennedy/decide/blob/main/docs/install.sh">Read the script</a> before running it.</p>
+
+  <footer>
+    MIT licensed · <a href="https://github.com/stukennedy/decide">Source on GitHub</a><br>
+    Scoring method after <a href="https://github.com/TheoLeeCJ/openjev">SemIf</a> by Theodore Lee (MIT). Runs
+    <a href="https://huggingface.co/Qwen/Qwen3.5-4B">Qwen3.5-4B</a> by the Qwen team (Apache-2.0) on
+    <a href="https://github.com/ml-explore/mlx">MLX</a> by Apple. Not affiliated with TypeSafe AI or Jev.
+  </footer>
+</main>
+<script>
+  document.getElementById("copy").addEventListener("click", async (e) => {
+    try {
+      await navigator.clipboard.writeText(document.getElementById("cmd").textContent);
+      e.target.textContent = "Copied";
+    } catch {
+      e.target.textContent = "Select and copy";
+    }
+    setTimeout(() => (e.target.textContent = "Copy"), 1500);
+  });
+</script>
+</body>
+</html>

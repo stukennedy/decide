@@ -1,0 +1,17 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "decide-cli",
+  // Info@continuata.com's Account: deploys fail rather than land in another account
+  "account_id": "21152e8bc67f5ef58c68929cb7af148a",
+  "compatibility_date": "2026-09-25",
+  "routes": [
+    { "pattern": "decide.run", "custom_domain": true }
+  ],
+  "observability": {
+    "enabled": true
+  },
+  // static site only: docs/ holds index.html, install.sh, _headers and _redirects
+  "assets": {
+    "directory": "docs"
+  }
+}

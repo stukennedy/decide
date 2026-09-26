@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "decide-cli"
+version = "0.1.0"
+description = "Fast local decisions from the command line: pick an option, get probabilities. Qwen3.5-4B on MLX."
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10,<3.13"
+dependencies = [
+  "mlx==0.32.2",
+  # pinned: this commit includes the Qwen3.5 recurrent q/k normalisation fix (release 0.31.3 doesn't)
+  "mlx-lm @ git+https://github.com/ml-explore/mlx-lm.git@a63e24c389382619eb6d9af656e3b46024be217a",
+  "huggingface_hub>=1.0",
+]
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+[project.scripts]
+decide = "decide.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["decide*"]
