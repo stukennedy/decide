@@ -33,6 +33,8 @@ OVERRIDE = os.environ.get("DECIDE_ROUTER_OVERRIDE") == "1"
 DRY_RUN = os.environ.get("DECIDE_ROUTER_DRY_RUN") == "1"
 LOG = Path(os.environ.get("DECIDE_HOME", Path.home() / ".decide")) / "router.log"
 MAX_CHARS = 6000  # keeps the request well inside decide's 4,096-token limit
+# decide runs on this machine: never send its requests through HTTP_PROXY or a system proxy
+LOCAL = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
 WRITING = {
     "question": "Will the result of this task be polished text that is published or sent to people, "
@@ -61,13 +63,13 @@ MODEL_FOR = {"writing": "sonnet", "simple": "haiku", "standard": "sonnet", "hard
 def post(path, body, timeout):
     req = urllib.request.Request(URL + path, json.dumps(body).encode(),
                                  {"Content-Type": "application/json"})
-    with urllib.request.urlopen(req, timeout=timeout) as r:
+    with LOCAL.open(req, timeout=timeout) as r:
         return json.load(r)
 
 
 def server_up():
     try:
-        with urllib.request.urlopen(URL + "/health", timeout=1) as r:
+        with LOCAL.open(URL + "/health", timeout=2) as r:
             return json.load(r).get("status") == "ready"
     except OSError:
         return False

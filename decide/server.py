@@ -24,6 +24,10 @@ MAX_TOKENS = int(os.environ.get("DECIDE_MAX_TOKENS", "4096"))
 
 def make_handler(run):
     class Handler(BaseHTTPRequestHandler):
+        # One request at a time, so a client that connects and never sends a request must not
+        # hold the server: drop it after 5 seconds.
+        timeout = 5
+
         def log_message(self, *args):
             pass  # never log request contents
 

@@ -8,6 +8,7 @@ import json
 import os
 import platform
 import signal
+import socket
 import subprocess
 import sys
 import time
@@ -15,7 +16,7 @@ import urllib.error
 import urllib.request
 
 from . import __version__
-from .config import LOG_FILE, MODEL, MODEL_SIZE, PID_FILE, REVISION, STATE_DIR, URL
+from .config import HOST, LOG_FILE, MODEL, MODEL_SIZE, PID_FILE, PORT, REVISION, STATE_DIR, URL
 from .rows import ask_row, ranked
 
 EPILOG = """examples:
@@ -33,11 +34,16 @@ class DecideError(Exception):
 
 # ---------------------------------------------------------------- server lifecycle
 
+# The server is always on this machine, so never route through HTTP_PROXY/ALL_PROXY or a macOS
+# system proxy: a proxy can't reach 127.0.0.1 and makes a running server look dead.
+_local = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+
+
 def _request(path, body=None, timeout=300):
     data = None if body is None else json.dumps(body).encode()
     req = urllib.request.Request(URL + path, data=data, headers={"Content-Type": "application/json"})
     try:
-        with urllib.request.urlopen(req, timeout=timeout) as r:
+        with _local.open(req, timeout=timeout) as r:
             return json.load(r)
     except urllib.error.HTTPError as e:
         try:
@@ -49,9 +55,25 @@ def _request(path, body=None, timeout=300):
 
 def health():
     try:
-        return _request("/health", timeout=2)
+        return _request("/health", timeout=3)
     except (OSError, DecideError):
         return None
+
+
+def _port_open():
+    try:
+        with socket.create_connection((HOST, PORT), timeout=1):
+            return True
+    except OSError:
+        return False
+
+
+def _log_tail():
+    try:
+        lines = [l.strip() for l in LOG_FILE.read_text(errors="replace").splitlines() if l.strip()]
+    except OSError:
+        return ""
+    return lines[-1][:160] if lines else ""
 
 
 def _pid():
@@ -97,14 +119,24 @@ def start(quiet=False):
                                     stdin=subprocess.DEVNULL, start_new_session=True)
     if not quiet:
         print("Starting decide server (loading the model takes a few seconds)...", file=sys.stderr)
-    deadline = time.time() + 180
-    while time.time() < deadline:
+    started = time.time()
+    next_note = started + 15
+    while time.time() - started < 180:
         if health():
             return
         if proc and proc.poll() is not None:
-            raise DecideError(f"server exited during startup; see {LOG_FILE}")
+            raise DecideError(f"server exited during startup: {_log_tail() or 'no output'} (full log: {LOG_FILE})")
+        if time.time() >= next_note:
+            next_note += 15
+            if _port_open():
+                # listening but not answering: something between us and it, or a stuck connection
+                raise DecideError(
+                    f"the server is running on {URL} but isn't answering. Another program may be holding a "
+                    f"connection to it; run `decide stop` and try again. Full log: {LOG_FILE}")
+            if not quiet:
+                print(f"  still loading ({int(time.time() - started)} s): {_log_tail()}", file=sys.stderr)
         time.sleep(0.3)
-    raise DecideError(f"server didn't start within 3 minutes; see {LOG_FILE}")
+    raise DecideError(f"server didn't start within 3 minutes. Last log line: {_log_tail()} (full log: {LOG_FILE})")
 
 
 def stop():
