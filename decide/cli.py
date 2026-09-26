@@ -73,6 +73,7 @@ def _log_tail():
         lines = [l.strip() for l in LOG_FILE.read_text(errors="replace").splitlines() if l.strip()]
     except OSError:
         return ""
+    lines = [l for l in lines if any(c.isalnum() for c in l)]  # skip separator lines
     return lines[-1][:160] if lines else ""
 
 
@@ -198,7 +199,8 @@ def cmd_score(args):
 def cmd_status(args):
     h = health()
     if h:
-        print(f"running at {URL} (pid {h.get('pid')}) - {h['model']} on {h['backend']}, decide {h.get('version')}")
+        print(f"running at {URL} (pid {h.get('pid')}) - {h['model']} ({h.get('precision', 'bf16')}) "
+              f"on {h['backend']}, decide {h.get('version')}")
     else:
         print("not running (starts automatically on the next ask/score, or run `decide start`)")
         sys.exit(1)

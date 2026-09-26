@@ -40,6 +40,19 @@ equal to 4 d.p.) and on 230/231 JevBench tasks.
 - The prompt wording moves accuracy by several points in either direction. Any future change should be
   checked on JevBench-like data (yes/no, routing, many-option choice) before it ships.
 
+## Precision (added 27 Sep 2026)
+
+Same default scorer (json, 1 order), weights quantized in memory with MLX (affine, group size 64):
+
+| Precision | Memory (active / peak) | JevBench | Original | Easy | Hard | p50 |
+|---|---|---|---|---|---|---|
+| BF16 | 7.8 / 8.0 GB | 186/231 | 71/72 | 48/48 | 67/111 | 0.08 s |
+| 8-bit | 4.2 / 4.4 GB | 185/231 | 70/72 | 48/48 | 67/111 | 0.06 s |
+| 4-bit | 2.2 / 2.5 GB | 180/231 | 69/72 | 48/48 | 63/111 | 0.07 s |
+
+8-bit is the default on Macs with 24 GB of RAM or less. On a 16 GB Mac mini with about 4 GB free
+(two VMs and several apps running), BF16 took minutes to load and requests hung.
+
 ## Reproduce
 
 ```sh

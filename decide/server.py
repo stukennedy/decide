@@ -15,14 +15,14 @@ import time
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 from . import __version__
-from .config import HOST, MODEL, PID_FILE, PORT, REVISION
+from .config import HOST, MODEL, PID_FILE, PORT, REVISION, model_bits
 from .rows import jev_answer, jev_to_rows
 
 MAX_BODY = 4 * 1024 * 1024
 MAX_TOKENS = int(os.environ.get("DECIDE_MAX_TOKENS", "4096"))
 
 
-def make_handler(run):
+def make_handler(run, precision):
     class Handler(BaseHTTPRequestHandler):
         # One request at a time, so a client that connects and never sends a request must not
         # hold the server: drop it after 5 seconds.
@@ -41,8 +41,8 @@ def make_handler(run):
 
         def do_GET(self):
             if self.path == "/health":
-                return self.send(200, {"status": "ready", "model": MODEL, "revision": REVISION,
-                                       "backend": "mlx", "version": __version__, "pid": os.getpid()})
+                return self.send(200, {"status": "ready", "model": MODEL, "revision": REVISION, "backend": "mlx",
+                                       "precision": precision, "version": __version__, "pid": os.getpid()})
             self.send(404, {"error": "not found"})
 
         def do_POST(self):
@@ -76,8 +76,11 @@ def main():
     from .scorer import Scorer
 
     # json prompt, one option order: the configuration that scored best on JevBench (see bench/RESULTS.md)
+    bits = model_bits()
+    precision = f"{bits}-bit" if bits else "bf16"
+    print(f"loading {MODEL} ({precision})", flush=True)
     scorer = Scorer.load(MODEL, REVISION, prompt="json", orders=int(os.environ.get("DECIDE_ORDERS", "1")),
-                         max_tokens=MAX_TOKENS)
+                         max_tokens=MAX_TOKENS, bits=bits)
 
     def run(row):
         for key in ("state", "question", "options"):
@@ -89,11 +92,11 @@ def main():
     run({"id": "warmup", "state": "warm up", "question": "Ready?",
          "options": [{"id": "yes", "description": "yes"}, {"id": "no", "description": "no"}]})
 
-    server = HTTPServer((HOST, PORT), make_handler(run))
+    server = HTTPServer((HOST, PORT), make_handler(run, precision))
     PID_FILE.parent.mkdir(parents=True, exist_ok=True)
     PID_FILE.write_text(str(os.getpid()))
     signal.signal(signal.SIGTERM, lambda *_: sys.exit(0))
-    print(json.dumps({"url": f"http://{HOST}:{PORT}", "model": MODEL, "backend": "mlx"}), flush=True)
+    print(json.dumps({"url": f"http://{HOST}:{PORT}", "model": MODEL, "backend": "mlx", "precision": precision}), flush=True)
     try:
         server.serve_forever()
     except (KeyboardInterrupt, SystemExit):

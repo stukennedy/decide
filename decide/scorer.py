@@ -96,15 +96,24 @@ class Scorer:
             self.letter_ids.append(ids[0])
 
     @classmethod
-    def load(cls, model_id, revision, cache_limit_mib=256, **kwargs):
+    def load(cls, model_id, revision, cache_limit_mib=256, bits=None, **kwargs):
+        """bits=8 or 4 quantizes the weights in memory (about 4.5 GB or 2.5 GB instead of 9 GB)."""
         import mlx.core as mx
+        import mlx.nn as nn
         from mlx_lm import load
 
+        if bits not in (None, 4, 8):
+            raise ValueError("bits must be 4, 8 or None")
         mx.set_default_device(mx.gpu)
         mx.set_cache_limit(cache_limit_mib * 1024 * 1024)  # MLX would otherwise hold on to most free RAM
-        model, tokenizer = load(model_id, revision=revision)
+        model, tokenizer = load(model_id, revision=revision, lazy=bits is not None)
+        if bits:
+            nn.quantize(model, group_size=64, bits=bits)  # before materialising, so the BF16 weights never all sit in memory
+        mx.eval(model.parameters())
         model.eval()
-        return cls(model, tokenizer, **kwargs)
+        scorer = cls(model, tokenizer, **kwargs)
+        scorer.bits = bits
+        return scorer
 
     def _encode(self, row, order):
         options = [row["options"][i] for i in order]

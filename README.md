@@ -18,7 +18,8 @@ Apple's MLX and reads the model's preference for each option directly: one forwa
 
 ## Install
 
-Needs an Apple Silicon Mac (M1 or later), about 9 GB of disk and about 10 GB of free memory.
+Needs an Apple Silicon Mac (M1 or later) and about 9 GB of disk. It uses about 8 GB of memory, or about
+4.5 GB on Macs with 24 GB of RAM or less, where it loads the model at 8-bit precision (see below).
 
 ```sh
 curl -fsSL https://decide.run/install | sh
@@ -105,6 +106,19 @@ Things to know:
   their order consistent.
 - **Inputs are limited to 4,096 tokens** (roughly 3,000 words). Longer inputs are rejected, not truncated.
   `DECIDE_MAX_TOKENS` raises the limit, at the cost of speed and accuracy.
+
+## Memory and precision
+
+| Precision | Memory | JevBench (231 tasks) | Used by default on |
+|---|---|---|---|
+| Full (BF16) | ~8 GB | 186 | Macs with more than 24 GB of RAM |
+| 8-bit | ~4.5 GB | 185 | Macs with 24 GB or less |
+| 4-bit | ~2.5 GB | 180 | only if you ask for it |
+
+Choose explicitly with `DECIDE_BITS=16`, `8` or `4` when the server starts
+(`decide stop`, then `DECIDE_BITS=8 decide start`). `decide status` shows which one is running.
+If answers are slow or `decide` seems stuck, the Mac is probably short of memory: check
+`memory_pressure` and quit something large, like a VM or Docker.
 
 ## Uninstall
 

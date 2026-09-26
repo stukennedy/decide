@@ -18,12 +18,13 @@ from decide.scorer import Scorer
 
 PROMPT = os.environ.get("DECIDE_PROMPT", "text")
 ORDERS = int(os.environ.get("DECIDE_ORDERS", "1"))
+BITS = int(os.environ["DECIDE_BITS"]) if os.environ.get("DECIDE_BITS") else None
 
 
 def load(source, revision, *args, **kwargs):
-    scorer = Scorer.load(source, revision, prompt=PROMPT, orders=ORDERS)
+    scorer = Scorer.load(source, revision, prompt=PROMPT, orders=ORDERS, bits=BITS)
     return scorer, None, {"source": source, "revision": revision, "backend": "mlx", "scorer": "decide",
-                          "prompt": PROMPT, "orders": ORDERS}
+                          "prompt": PROMPT, "orders": ORDERS, "bits": BITS}
 
 
 def score(scorer, _tokenizer, row, meta, max_tokens=4096):
