@@ -118,6 +118,9 @@ Things to know:
 Choose for yourself with `decide start --bits 16`, `8` or `4` (run `decide stop` first if a server
 is already running), or set `DECIDE_BITS` so servers started automatically use it too.
 `decide status` shows which one is running.
+
+The benchmark times on this page were measured on an M5 Max. Older or smaller Macs are slower
+(expect a few times longer on an M1 or a base-model chip); accuracy is the same on any Mac.
 If answers are slow or `decide` seems stuck, the Mac is probably short of memory: check
 `memory_pressure` and quit something large, like a VM or Docker.
 
