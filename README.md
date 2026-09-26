@@ -119,8 +119,9 @@ Choose for yourself with `decide start --bits 16`, `8` or `4` (run `decide stop`
 is already running), or set `DECIDE_BITS` so servers started automatically use it too.
 `decide status` shows which one is running.
 
-The benchmark times on this page were measured on an M5 Max. Older or smaller Macs are slower
-(expect a few times longer on an M1 or a base-model chip); accuracy is the same on any Mac.
+The benchmark times on this page were measured on an M5 Max. Smaller chips are slower: on a base
+M4 Mac mini (16 GB, 8-bit) a short decision takes about 0.35 s of model time (about 0.45 s for the
+whole command), and the first one after starting about 0.7 s. Accuracy is the same on any Mac.
 If answers are slow or `decide` seems stuck, the Mac is probably short of memory: check
 `memory_pressure` and quit something large, like a VM or Docker.
 
