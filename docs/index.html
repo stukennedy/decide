@@ -8,66 +8,58 @@
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<meta name="theme-color" content="#f4f5f2" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0e1118" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#0d0f0a">
 <meta property="og:title" content="decide: fast local decisions on your Mac">
 <meta property="og:description" content="Give it a question and your options. It picks one, locally, in under a tenth of a second.">
 <meta property="og:image" content="https://decide.run/icon-512.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Martian+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --paper: #f4f5f2;
-    --ink: #16181d;
-    --graphite: #6b7079;
-    --fog: #c3c7c0;
-    --rule: #dfe1dc;
-    --signal: #2f45f5;
-    --term: #16181d;
-    --term-ink: #e9ebef;
-    --term-dim: #8a909b;
-    --term-hi: #aeb9ff;
+    --bg: #0d0f0a;
+    --ink: #eeeee0;
+    --muted: #9ea38f;
+    --dim: #6b7160;
+    --fog: #353b2b;
+    --rule: #262b1e;
+    --panel: #14170f;
+    --panel-edge: #252a1d;
+    --green: #8dff5c;
+    --button: #cfd1c2;
     --display: "Bricolage Grotesque", ui-sans-serif, system-ui, -apple-system, sans-serif;
-    --mono: "Martian Mono", ui-monospace, "SF Mono", Menlo, monospace;
-    --measure: 68rem;
-    color-scheme: light;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --paper: #0e1118; --ink: #e9ebef; --graphite: #9aa0ab; --fog: #3d4350; --rule: #232834;
-      --signal: #8c9bff; --term: #161a24; --term-ink: #e9ebef; --term-dim: #7d8492;
-      color-scheme: dark;
-    }
+    --mono: ui-monospace, "SF Mono", Menlo, monospace;
+    --measure: 62rem;
+    color-scheme: dark;
   }
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
   body {
-    margin: 0; background: var(--paper); color: var(--ink);
+    margin: 0; background: var(--bg); color: var(--ink);
     font: 400 1.0625rem/1.6 var(--display); font-variation-settings: "opsz" 16;
   }
-  a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: .2em; }
-  a:hover { color: var(--signal); }
-  :focus-visible { outline: 2px solid var(--signal); outline-offset: 3px; border-radius: 3px; }
-  code { font: .86em var(--mono); }
+  a { color: inherit; text-decoration-thickness: 1px; text-decoration-color: var(--dim); text-underline-offset: .22em; }
+  a:hover { color: var(--green); text-decoration-color: currentColor; }
+  :focus-visible { outline: 2px solid var(--green); outline-offset: 3px; border-radius: 3px; }
+  code { font: .88em var(--mono); }
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .wrap { max-width: var(--measure); margin: 0 auto; padding-inline: clamp(1rem, 4vw, 2.5rem); }
+  .accent { color: var(--green); }
+  .line { display: block; }
 
-  /* top bar */
-  .bar { display: flex; justify-content: space-between; align-items: center; padding-block: 1.4rem 0; }
-  .brand { display: inline-flex; align-items: center; gap: .5rem; font-weight: 700; font-size: 1.15rem; letter-spacing: -0.01em; text-decoration: none; }
-  .brand:hover { color: inherit; }
-  .mark { width: 2.2rem; height: auto; display: block; }
-  .mark .ghost { fill: var(--graphite); }
-  .mark .heavy { fill: var(--signal); }
-  .bar nav a { color: var(--graphite); text-decoration: none; margin-left: 1.4rem; font-size: .95rem; }
+  /* top bar: wordmark with a block cursor */
+  .bar { display: flex; justify-content: space-between; align-items: center; padding-block: 1.5rem 0; }
+  .brand { font-weight: 800; font-size: 1.3rem; letter-spacing: -0.03em; text-decoration: none; display: inline-flex; align-items: baseline; }
+  .brand:hover { color: var(--ink); }
+  .brand .cursor { display: inline-block; width: .5em; height: .72em; background: var(--green); margin-left: .06em; }
+  .bar nav a { color: var(--muted); text-decoration: none; margin-left: 1.6rem; font-size: 1rem; }
   .bar nav a:hover { color: var(--ink); }
 
   /* hero: the decision itself. Each option's weight is its probability. */
   .hero { padding-block: clamp(3rem, 8vw, 6rem) clamp(2.5rem, 6vw, 4rem); }
   .ask { max-width: 40rem; margin: 0 0 clamp(1.4rem, 3vw, 2rem); }
   .ask .q { font-size: clamp(1.25rem, 2.2vw, 1.6rem); line-height: 1.3; font-weight: 600; letter-spacing: -0.01em; margin: 0; }
-  .ask .ctx { color: var(--graphite); margin: .35rem 0 0; font-size: 1.05rem; }
+  .ask .ctx { color: var(--muted); margin: .35rem 0 0; font-size: 1.05rem; }
   .options { list-style: none; margin: 0; padding: 0; min-height: calc(3 * clamp(3.4rem, 11.5vw, 9.3rem)); }
   .opt {
     display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; column-gap: 1.5rem;
@@ -80,97 +72,110 @@
     overflow-wrap: anywhere;
   }
   .opt .p {
-    font-size: clamp(1rem, 1.6vw, 1.25rem); font-variant-numeric: tabular-nums; color: var(--graphite);
+    font: 400 clamp(1rem, 1.6vw, 1.3rem) var(--mono); color: var(--dim);
     padding-bottom: .9em; transition: color .9s ease;
   }
   .opt .track, .opt .fill { position: absolute; left: 0; bottom: 0; height: 3px; }
-  .opt .track { right: 0; background: var(--rule); }
+  .opt .track { right: 0; background: var(--rule); height: 2px; }
   .opt .fill { width: 0; background: var(--fog); transition: width .9s cubic-bezier(.2,.7,.1,1), background .9s ease; }
-  .opt.win .word { color: var(--signal); }
-  .opt.win .p { color: var(--ink); font-weight: 600; }
-  .opt.win .fill { background: var(--signal); }
+  .opt.win .word { color: var(--green); }
+  .opt.win .p { color: var(--ink); font-weight: 700; }
+  .opt.win .fill { background: var(--green); }
 
-  .examples { display: flex; flex-wrap: wrap; gap: .5rem; margin: clamp(1.5rem, 3vw, 2.1rem) 0 .7rem; }
+  .examples { display: flex; flex-wrap: wrap; gap: .5rem; margin: clamp(1.5rem, 3vw, 2.1rem) 0 .9rem; }
   .examples button {
-    font: inherit; font-size: .92rem; color: var(--ink); background: transparent;
-    border: 1px solid var(--fog); border-radius: 999px; padding: .38rem .9rem; cursor: pointer;
+    font: 500 .92rem var(--display); color: var(--ink); background: transparent;
+    border: 1px solid var(--fog); border-radius: 999px; padding: .42rem .95rem; cursor: pointer;
   }
-  .examples button:hover { border-color: var(--ink); }
-  .examples button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-  .provenance { color: var(--graphite); font-size: .9rem; margin: 0; }
+  .examples button:hover { border-color: var(--muted); }
+  .examples button[aria-pressed="true"] { background: var(--green); color: var(--bg); border-color: var(--green); }
+  .provenance { color: var(--muted); font-size: .9rem; margin: 0; }
 
   /* install */
-  .install { padding-block: 0 clamp(3.5rem, 8vw, 6rem); }
+  .install { padding-block: clamp(1.5rem, 4vw, 3rem) clamp(3.5rem, 8vw, 6rem); }
   .install h1 {
-    font-size: clamp(1.9rem, 4.2vw, 3.1rem); line-height: 1.08; letter-spacing: -0.025em; font-weight: 700;
-    font-variation-settings: "opsz" 72; margin: 0 0 1.4rem; max-width: 21ch;
+    font-size: clamp(2.4rem, 6vw, 3.6rem); line-height: 1.04; letter-spacing: -0.035em; font-weight: 800;
+    font-variation-settings: "opsz" 96; margin: 0 0 1.6rem; max-width: 13.5ch;
   }
   .cmd {
-    display: flex; align-items: center; gap: .75rem; max-width: 46rem;
-    background: var(--term); color: var(--term-ink); border-radius: 12px; padding: .8rem .8rem .8rem 1.2rem;
+    display: flex; align-items: center; gap: .75rem; max-width: 50rem;
+    background: var(--panel); border: 1px solid var(--panel-edge); border-radius: 10px; padding: .75rem .75rem .75rem 1.2rem;
   }
-  .cmd code { flex: 1; min-width: 0; overflow-x: auto; white-space: nowrap; font-size: .9rem; line-height: 1.5; }
-  .cmd code::before { content: "$ "; color: var(--term-dim); }
+  .cmd code { flex: 1; min-width: 0; overflow-x: auto; white-space: nowrap; font-size: 1rem; line-height: 1.5; }
+  .cmd code::before { content: "$ "; color: var(--green); }
   .cmd button {
-    font: 600 .88rem var(--display); color: var(--term); background: var(--term-ink); border: 0;
-    border-radius: 8px; padding: .55rem 1rem; cursor: pointer; flex: none;
+    font: 600 .9rem var(--display); color: var(--bg); background: var(--button); border: 0;
+    border-radius: 7px; padding: .5rem 1rem; cursor: pointer; flex: none;
   }
-  .cmd button:hover { background: #fff; }
-  .needs { color: var(--graphite); margin: .9rem 0 0; max-width: 46rem; font-size: .95rem; }
+  .cmd button:hover { background: var(--ink); }
+  .needs { color: var(--muted); margin: 1rem 0 0; max-width: 50rem; font-size: 1rem; }
 
   /* sections */
   section.block { border-top: 1px solid var(--rule); padding-block: clamp(3rem, 7vw, 5rem); }
-  .block h2 { font-size: clamp(1.5rem, 2.8vw, 2.1rem); letter-spacing: -0.02em; line-height: 1.15; font-weight: 700; margin: 0 0 .8rem; max-width: 24ch; }
-  .block .lede { color: var(--graphite); max-width: 38rem; margin: 0 0 2rem; }
-  .split { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(2rem, 5vw, 4rem); align-items: start; }
-  pre {
-    margin: 0; background: var(--term); color: var(--term-ink); border-radius: 12px; padding: 1.2rem 1.3rem;
-    overflow-x: auto; font: 400 .8rem/1.8 var(--mono);
+  .block h2 { font-size: clamp(1.7rem, 3.4vw, 2.5rem); letter-spacing: -0.03em; line-height: 1.12; font-weight: 800; margin: 0 0 1rem; max-width: 22ch; }
+  .block .lede { color: var(--muted); max-width: 44rem; margin: 0 0 2rem; }
+  .terms { margin-top: 2.5rem; }
+
+  .term {
+    margin: 0; background: var(--panel); border: 1px solid var(--panel-edge); border-radius: 12px;
+    padding: 1.25rem 1.4rem; overflow-x: auto; font: 400 .9rem/1.9 var(--mono); color: var(--ink);
   }
-  pre .c, pre .d { color: var(--term-dim); }
-  pre .d { user-select: none; }
-  pre .w { color: var(--term-hi); font-weight: 600; }
-  .uses { list-style: none; padding: 0; margin: 1.6rem 0 0; }
-  .uses li { padding: .85rem 0; border-top: 1px solid var(--rule); }
-  .uses b { display: block; font-weight: 600; }
-  .uses span { color: var(--graphite); }
+  .term + .term { margin-top: 1.1rem; }
+  .term .d { color: var(--green); user-select: none; }
+  .term .c { color: var(--dim); }
+  .term .w { color: var(--green); font-weight: 700; }
+  .term .lose { color: var(--dim); }
+  .term .pw { color: var(--green); }
+  .term .on { color: var(--green); }
+  .term .off { color: var(--fog); }
+
+  .uses { list-style: none; padding: 0; margin: 1.8rem 0 0; }
+  .uses li { padding: 1rem 0; border-top: 1px solid var(--rule); }
+  .uses b { display: block; font-weight: 700; font-size: 1.15rem; }
+  .uses span { color: var(--muted); }
 
   /* claude code routing */
-  .routes { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
-  .routes td { padding: .8rem 1rem .8rem 0; border-top: 1px solid var(--rule); vertical-align: baseline; }
+  .routes { width: 100%; border-collapse: collapse; }
+  .routes td { padding: .85rem 1rem .85rem 0; border-top: 1px solid var(--rule); vertical-align: baseline; }
   .routes td.task { color: var(--ink); }
-  .routes td.model { font-weight: 700; color: var(--signal); white-space: nowrap; }
-  .routes td.why { color: var(--graphite); white-space: nowrap; text-align: right; padding-right: 0; }
-  .route-notes { color: var(--graphite); margin: 1.4rem 0 0; max-width: 34rem; font-size: .95rem; }
+  .routes td.model { font-weight: 800; color: var(--green); white-space: nowrap; }
+  .routes td.why { font: .88rem var(--mono); color: var(--dim); white-space: nowrap; text-align: right; padding-right: 0; }
+  .route-notes { color: var(--muted); margin: 0 0 2rem; max-width: 44rem; }
 
   /* accuracy */
   .table { overflow-x: auto; }
-  .bench { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
-  .bench th { text-align: left; font-weight: 500; color: var(--graphite); font-size: .92rem; padding: 0 1.2rem .7rem 0; }
-  .bench td { padding: .9rem 1.2rem .9rem 0; border-top: 1px solid var(--rule); vertical-align: middle; white-space: nowrap; }
-  .bench td:first-child { white-space: normal; min-width: 10rem; }
-  .bench .me td { font-weight: 600; }
-  .meter { display: inline-block; width: clamp(3rem, 9vw, 7rem); height: 6px; background: var(--rule); border-radius: 3px; vertical-align: middle; margin-right: .7rem; position: relative; overflow: hidden; }
-  .meter i { position: absolute; inset: 0 auto 0 0; background: var(--graphite); border-radius: 3px; }
-  .me .meter i { background: var(--ink); }
-  .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 1.5rem 2.5rem; margin-top: 2.5rem; }
-  .notes p { margin: 0; color: var(--graphite); }
-  .notes b { color: var(--ink); font-weight: 600; }
+  .bench { width: 100%; border-collapse: collapse; }
+  .bench th { text-align: right; font-weight: 500; color: var(--muted); font-size: .92rem; padding: 0 1rem .9rem 0; white-space: nowrap; }
+  .bench th:first-child { text-align: left; }
+  .bench td { padding: 1rem 1rem 1rem 0; border-top: 1px solid var(--rule); white-space: nowrap; text-align: right; font: .95rem var(--mono); color: var(--dim); }
+  .bench td:first-child { text-align: left; font: 400 1.05rem var(--display); color: var(--muted); white-space: normal; min-width: 11rem; }
+  .bench .me td { color: var(--ink); font-weight: 700; border-bottom: 3px solid var(--green); }
+  .bench .me td:first-child { color: var(--green); font-weight: 700; }
+  .bench tbody tr:last-child td { border-bottom: 1px solid var(--rule); }
+  .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); gap: 2rem 2.5rem; margin-top: 3rem; }
+  .notes p { margin: 0; color: var(--muted); }
+  .notes b { display: block; color: var(--ink); font-weight: 700; margin-bottom: .35rem; }
 
-  .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 1.8rem 2.5rem; margin: 1.6rem 0 0; }
-  .facts dt { font-weight: 600; }
-  .facts dd { margin: .25rem 0 0; color: var(--graphite); }
+  /* what you're installing: label and detail on ruled rows */
+  .facts { margin: 2rem 0 0; }
+  .facts > div { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 6fr); gap: 0 3rem; }
+  .facts dt, .facts dd { border-top: 1px solid var(--rule); padding-block: 1.3rem; }
+  .facts dt { font-weight: 700; }
+  .facts dd { margin: 0; color: var(--muted); }
 
-  footer { border-top: 1px solid var(--rule); padding-block: 2rem 3rem; color: var(--graphite); font-size: .9rem; }
-  footer p { margin: .3rem 0; max-width: 50rem; }
+  footer { padding-block: 3rem 4rem; color: var(--muted); font-size: .92rem; }
+  footer p { margin: .35rem 0; max-width: 50rem; }
+  footer a { color: var(--ink); }
 
   @media (max-width: 760px) {
-    .split { grid-template-columns: minmax(0, 1fr); }
     .opt { column-gap: .8rem; }
     .bar nav a:first-child { display: none; }
+    .facts > div { grid-template-columns: minmax(0, 1fr); }
+    .facts dd { border-top: 0; padding-top: 0; }
   }
   @media (max-width: 480px) {
     .routes td.why { display: none; }
+    .bar nav a { margin-left: 1rem; }
   }
   @media (prefers-reduced-motion: reduce) {
     .opt .word, .opt .p, .opt .fill { transition: none; }
@@ -180,7 +185,7 @@
 <body>
 <div class="wrap">
   <header class="bar">
-    <a class="brand" href="/" aria-label="decide home"><svg class="mark" viewBox="4 6 24 20" aria-hidden="true"><g class="ghost"><path transform="translate(4.59 25.50) scale(0.02701 -0.02701) translate(-31.8 0)" d="M185.92236328125 -11.56005859375Q142.001953125 -11.56005859375 107.241455078125 16.639892578125Q72.48095703125 44.83984375 52.12060546875 104.079833984375Q31.76025390625 163.31982421875 31.76025390625 255.919921875Q31.76025390625 345.83984375 50.820556640625 406.7998046875Q69.880859375 467.759765625 104.861328125 498.999755859375Q139.841796875 530.23974609375 186.3623046875 530.23974609375Q227.0029296875 530.23974609375 255.42333984375 507.859619140625Q283.84375 485.4794921875 301.56396484375 438.87939453125Q319.2841796875 392.279296875 326.84423828125 320.359375H337.32421875Q330.80419921875 372.439453125 326.564208984375 412.659423828125Q322.32421875 452.87939453125 320.084228515625 484.079345703125Q317.84423828125 515.279296875 317.84423828125 539.3193359375V674.7998046875H374.88427734375L372.3642578125 250.39990234375L375.404296875 0H318.3642578125L334.80419921875 178.2001953125H325.80419921875Q314.2041015625 109.240234375 294.9638671875 67.420166015625Q275.7236328125 25.60009765625 248.583251953125 7.02001953125Q221.44287109375 -11.56005859375 185.92236328125 -11.56005859375ZM191.2421875 42.43994140625Q224.44287109375 42.43994140625 248.103271484375 63.10009765625Q271.763671875 83.76025390625 286.223876953125 115.900390625Q300.68408203125 148.04052734375 307.744140625 182.780517578125Q314.80419921875 217.5205078125 314.80419921875 245.16015625V259.39990234375Q314.80419921875 275.6396484375 311.524169921875 302.03955078125Q308.244140625 328.439453125 300.384033203125 358.439453125Q292.52392578125 388.439453125 279.063720703125 415.01953125Q265.603515625 441.599609375 245.22314453125 458.65966796875Q224.8427734375 475.7197265625 195.76220703125 475.7197265625Q165.16162109375 475.7197265625 140.961181640625 451.7197265625Q116.7607421875 427.7197265625 102.760498046875 378.519775390625Q88.76025390625 329.31982421875 88.76025390625 253.52001953125Q88.76025390625 188 100.50048828125 140.47998046875Q112.24072265625 92.9599609375 135.18115234375 67.699951171875Q158.12158203125 42.43994140625 191.2421875 42.43994140625Z"/></g><g class="heavy"><path transform="translate(15.17 25.50) scale(0.02701 -0.02701) translate(-18.2 0)" d="M190.361328125 -13.0400390625Q138.64111328125 -13.0400390625 99.86083984375 18.919921875Q61.08056640625 50.8798828125 39.620361328125 113.39990234375Q18.16015625 175.919921875 18.16015625 266.64013671875Q18.16015625 359.56005859375 39.2802734375 420.300048828125Q60.400390625 481.0400390625 97.440673828125 510.56005859375Q134.48095703125 540.080078125 182.44140625 540.080078125Q221.7216796875 540.080078125 250.501953125 520.1201171875Q279.2822265625 500.16015625 297.722412109375 459.880126953125Q316.16259765625 419.60009765625 324.20263671875 358.39990234375H333.6826171875Q328.20263671875 392.39990234375 323.442626953125 424.919921875Q318.6826171875 457.43994140625 315.942626953125 487.239990234375Q313.20263671875 517.0400390625 313.20263671875 542.60009765625V690.400390625H471.36279296875V215.7587890625V0H334.6826171875V157.240234375H327.20263671875Q319.08251953125 97.3203125 300.90234375 59.500244140625Q282.72216796875 21.68017578125 255.221923828125 4.320068359375Q227.7216796875 -13.0400390625 190.361328125 -13.0400390625ZM243.04150390625 109.72021484375Q257.7216796875 109.72021484375 270.681884765625 119.420166015625Q283.64208984375 129.1201171875 293.322265625 147.360107421875Q303.00244140625 165.60009765625 308.62255859375 190.68017578125Q314.24267578125 215.76025390625 314.24267578125 246.5205078125V260.240234375Q314.24267578125 288.3203125 310.16259765625 311.580322265625Q306.08251953125 334.84033203125 299.202392578125 352.540283203125Q292.322265625 370.240234375 283.162109375 382.18017578125Q274.001953125 394.1201171875 263.581787109375 400.080078125Q253.16162109375 406.0400390625 242.04150390625 406.0400390625Q221.12109375 406.0400390625 206.8408203125 387.679931640625Q192.560546875 369.31982421875 185.680419921875 335.81982421875Q178.80029296875 302.31982421875 178.80029296875 256.60009765625Q178.80029296875 213.76025390625 185.96044921875 180.2802734375Q193.12060546875 146.80029296875 207.40087890625 128.26025390625Q221.68115234375 109.72021484375 243.04150390625 109.72021484375Z"/></g></svg><span>decide</span></a>
+    <a class="brand" href="/" aria-label="decide home">decide<span class="cursor" aria-hidden="true"></span></a>
     <nav><a href="#use">Use</a><a href="#claude-code">Claude Code</a><a href="#accuracy">Accuracy</a><a href="https://github.com/stukennedy/decide">GitHub</a></nav>
   </header>
 
@@ -200,7 +205,7 @@
     </section>
 
     <section class="install" aria-labelledby="install-h">
-      <h1 id="install-h">Give it a question and your options. It picks one, on your Mac, in a blink.</h1>
+      <h1 id="install-h">Give it a question and your options. <span class="line">It picks one, on your Mac, in a <span class="accent">blink.</span></span></h1>
       <div class="cmd">
         <code id="cmd">curl -fsSL https://decide.run/install | sh</code>
         <button type="button" id="copy">Copy</button>
@@ -209,26 +214,20 @@
     </section>
 
     <section class="block" id="use" aria-labelledby="use-h">
-      <div class="split">
-        <div>
-          <h2 id="use-h">Use it wherever you'd write an if statement about text</h2>
-          <ul class="uses">
-            <li><b>Route messages</b><span>Send each ticket or email to the right queue.</span></li>
-            <li><b>Check rules</b><span>Does this request meet the policy, yes or no?</span></li>
-            <li><b>Steer an agent</b><span>Pick the next tool, or decide whether to hand over to a person.</span></li>
-            <li><b>Label a backlog</b><span>Run thousands of decisions from a file in one go.</span></li>
-          </ul>
-        </div>
-<pre><span class="c"># options are id, or id=description</span>
-<span class="d">$ </span>decide ask \
-    "Policy: refunds need a receipt. Customer has none." \
-    "Is a refund allowed?" \
-    "allowed=refund is permitted" "denied=not permitted"
+      <h2 id="use-h">Use it wherever you'd write an if statement about text</h2>
+      <ul class="uses">
+        <li><b>Route messages</b><span>Send each ticket or email to the right queue.</span></li>
+        <li><b>Check rules</b><span>Does this request meet the policy, yes or no?</span></li>
+        <li><b>Steer an agent</b><span>Pick the next tool, or decide whether to hand over to a person.</span></li>
+        <li><b>Label a backlog</b><span>Run thousands of decisions from a file in one go.</span></li>
+      </ul>
+      <div class="terms">
+<pre class="term"><span class="d">$ </span>decide ask "Policy: refunds need a receipt. Customer has none." \
+    "Is a refund allowed?" "allowed=refund is permitted" "denied=not permitted"
 <span class="w">denied</span>
-  denied   0.999
-  allowed  0.001
-
-<span class="c"># -q prints only the answer, for scripts</span>
+  denied   <span class="pw">0.999</span>  <span class="on">████████████████████</span>
+  <span class="lose">allowed  0.001</span>  <span class="off">░░░░░░░░░░░░░░░░░░░░</span></pre>
+<pre class="term"><span class="c"># -q prints only the answer, for scripts</span>
 <span class="d">$ </span>team=$(decide ask -q "$(cat ticket.txt)" \
     "Which team?" billing shipping tech)
 
@@ -242,13 +241,10 @@
     </section>
 
     <section class="block" id="claude-code" aria-labelledby="cc-h">
-      <div class="split">
-        <div>
-          <h2 id="cc-h">Keep Claude Code's subagents on the cheapest model that can do the job</h2>
-          <p class="lede">A small hook asks decide what each new subagent's task is, before it starts, and picks the model to match. It adds about a tenth of a second, costs nothing, and never blocks an agent: when decide isn't sure, the task runs as Claude asked.</p>
-          <p class="route-notes">Simple lookups go to Haiku, everyday coding and anything written for people go to Sonnet, and hard reasoning goes to Opus. Every choice is logged, so you can check its judgement. <a href="https://github.com/stukennedy/decide/tree/main/integrations/claude-code">Set it up</a>.</p>
-        </div>
-        <div class="table">
+      <h2 id="cc-h">Keep Claude Code's subagents on the cheapest model that can do the job</h2>
+      <p class="lede">A small hook asks decide what each new subagent's task is, before it starts, and picks the model to match. It adds about a tenth of a second, costs nothing, and never blocks an agent: when decide isn't sure, the task runs as Claude asked.</p>
+      <p class="route-notes">Simple lookups go to Haiku, everyday coding and anything written for people go to Sonnet, and hard reasoning goes to Opus. Every choice is logged, so you can check its judgement. <a href="https://github.com/stukennedy/decide/tree/main/integrations/claude-code">Set it up</a>.</p>
+      <div class="table">
           <table class="routes">
             <caption class="sr">Real routing decisions made by the hook</caption>
             <tbody>
@@ -259,7 +255,6 @@
               <tr><td class="task">Find the race that double-charges orders</td><td class="model">Opus</td><td class="why">hard, 0.986</td></tr>
             </tbody>
           </table>
-        </div>
       </div>
     </section>
 
@@ -268,19 +263,19 @@
       <p class="lede">Scored on the 231 public <a href="https://github.com/fstandhartinger/jevbench">JevBench</a> tasks. Short tasks are routing, policy checks, intent and extraction. Hard tasks are long documents and multi-step reasoning.</p>
       <div class="table">
         <table class="bench">
-          <thead><tr><th scope="col"><span class="sr">Model</span></th><th scope="col">Short tasks</th><th scope="col">Hard tasks</th><th scope="col">Typical time</th></tr></thead>
+          <thead><tr><th scope="col">Model</th><th scope="col">Short tasks</th><th scope="col">Hard tasks</th><th scope="col">Typical time</th></tr></thead>
           <tbody>
             <tr class="me"><td>decide, 4B model on your Mac</td>
-              <td><span class="meter"><i style="width:99.2%"></i></span>119 of 120</td>
-              <td><span class="meter"><i style="width:60.4%"></i></span>67 of 111</td>
+              <td>119 of 120</td>
+              <td>67 of 111</td>
               <td>0.08 s</td></tr>
             <tr><td>Jev 1.13, hosted API</td>
-              <td><span class="meter"><i style="width:99.2%"></i></span>119 of 120</td>
-              <td><span class="meter"><i style="width:71.2%"></i></span>79 of 111</td>
+              <td>119 of 120</td>
+              <td>79 of 111</td>
               <td>0.62 s</td></tr>
             <tr><td>Open-Jev 27B, same Mac</td>
-              <td><span class="meter"><i style="width:97.5%"></i></span>117 of 120</td>
-              <td><span class="meter"><i style="width:73.0%"></i></span>81 of 111</td>
+              <td>117 of 120</td>
+              <td>81 of 111</td>
               <td>1.36 s</td></tr>
           </tbody>
         </table>

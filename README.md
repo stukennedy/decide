@@ -1,4 +1,4 @@
-<img src="docs/icon-512.png" width="88" alt="decide logo: a thin d beside a heavy blue d">
+<img src="docs/icon-512.png" width="88" alt="decide logo: a d followed by a green block cursor">
 
 # decide
 
